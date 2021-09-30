@@ -26,6 +26,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 //---------AlertDialogError end-------------------
 
 import axios from 'axios';
+import { getElementError } from "@testing-library/dom";
  
 const urlApi="http://localhost:3001/api/auth/singin";
 
@@ -148,37 +149,38 @@ const Login = () => {
           </DialogActions>
       </Dialog>
 
-    const peticionPost=async()=>{
-      await axios({
-         method: "post",
-         url:urlApi,
-         headers:{
-         "Content-Type":"application/json",
-         },
-         data:{
-               email:body.email,
-               password:body.password
-         }
+const peticionPost=async()=>{
+    
+          await axios({
+                method: "post",
+                url:urlApi,
+                headers:{
+                "Content-Type":"application/json",
+                },
+                data:{
+                email:body.email,
+                password:body.password
+                }
+              })
+               .then(response=>{
          
-         
- 
-     })
-     .then(response=>{
-        
-     sessionStorage.setItem('accessToken', JSON.stringify(response.data.token))
-     sessionStorage.setItem('roles', JSON.stringify(response.data.rolesNameUserFound));
-     console.log(JSON.stringify(response.data.token))
-      /* localStorage.setItem('accessToken', JSON.stringify(response.data.token)); 
-      localStorage.setItem('roles', JSON.stringify(response.data.rolesNameUserFound));   */
-     })
-     .catch(error=>{
-       console.log(error.response);
-       setEstadoError(error.response.status)
-       setMensajeError(error.response.data.message)
-       OpenAlertDialog()
-       console.log(estadoError)
-     })    
-   }  
+               sessionStorage.setItem('accessToken', JSON.stringify(response.data.token))
+               sessionStorage.setItem('roles', JSON.stringify(response.data.rolesNameUserFound));
+               console.log(JSON.stringify(response.data.token))
+               window.location.assign("/navbar");
+               })
+               .catch(error=>{
+                     if(String(error)=="Error: Network Error")
+                        window.location.assign("/servidor");
+                     else{
+                          setEstadoError(error.response.status)
+                          setMensajeError(error.response.data.message)
+                          OpenAlertDialog() 
+                         }
+                console.log(estadoError)
+                }) 
+      
+}  
 
 
 return (
@@ -219,12 +221,7 @@ return (
              variant="contained" 
              color="primary"
              className={classes.button}
-             onClick={
-                      async()=>{
-                                await peticionPost();
-                                window.location.assign("/navbar");
-                               }
-                     }
+             onClick={async()=>await peticionPost()}
              >  
              Sign In            
              </Button>

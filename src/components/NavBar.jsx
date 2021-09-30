@@ -11,12 +11,10 @@ import GroupIcon from '@material-ui/icons/Group';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import NewProduct from './newProduct';
 
+
 import Login from '../components/Login'
 
- /* const theme = createTheme({
-  spacing: 0.1,
-});  */ 
-
+  
 const useStyles = makeStyles((theme) => ({
     root: {
       flexGrow: 1,
@@ -30,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 const DeleteKeyAccess=()=>{
+    if(sessionStorage.getItem('accessToken')==null && sessionStorage.getItem('roles')==null)
+       return
+
     if(sessionStorage.getItem('accessToken'))
        sessionStorage.removeItem('accessToken') 
     
@@ -38,6 +39,12 @@ const DeleteKeyAccess=()=>{
 }
 
 const EnableONOFF=()=>{
+  if(sessionStorage.getItem('roles')==null)
+    {
+      window.location.assign("/servidor")
+      return
+    }
+    
   const rolesUser=JSON.parse(sessionStorage.getItem('roles'));
   if(rolesUser.length==1 && rolesUser[0]=='admin')
      return false
@@ -72,7 +79,11 @@ const NavBar = () => {
                <Toolbar>
                   <IconButton edge="start" 
                   className={classes.menuButton} 
-                  color="inherit" aria-label="menu" href="/user" disabled={EnableONOFF()}>
+                  color="inherit" 
+                  aria-label="menu"  
+                  disabled={EnableONOFF()}
+                  onClick={()=>window.location.assign("/user")}                                                                                               
+                  >
                      <GroupIcon/>
                   </IconButton>
                   <Typography variant="h6" className={classes.title}>
@@ -80,7 +91,10 @@ const NavBar = () => {
                   </Typography>
                   <IconButton edge="start" 
                   className={classes.menuButton} 
-                  color="inherit" aria-label="menu" href="/product">
+                  color="inherit" 
+                  aria-label="menu" 
+                  onClick={()=>window.location.assign("/product")}
+                  >
                       <ShoppingCartIcon/>
                   </IconButton>
                   <Typography variant="h6" className={classes.title}>

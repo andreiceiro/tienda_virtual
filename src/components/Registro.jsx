@@ -161,35 +161,36 @@ const Registro = () => {
       </Dialog>
 
    
-    const peticionPost=async()=>{
-        await axios({
-           method: "post",
-           url:urlApi,
-           headers:{
-           "Content-Type":"application/json"
-           },
-           data:{
-                 username:bodyUp.username,
-                 email:bodyUp.email,
-                 password:bodyUp.password,
-                 roles: roleName
-           }
+const peticionPost=async()=>{
+
+          await axios({
+                method: "post",
+                url:urlApi,
+                headers:{
+                "Content-Type":"application/json"
+                },
+                data:{
+                username:bodyUp.username,
+                email:bodyUp.email,
+                password:bodyUp.password,
+                roles: roleName
+                }
+             })
+             .then(response=>{
+              sessionStorage.setItem('accessToken', JSON.stringify(response.data.token));
+              sessionStorage.setItem('roles', JSON.stringify(response.data.rolesName));
+              window.location.assign("/navbar");  
+              })
+             .catch(error=>{
+                   if(String(error)=="Error: Network Error")
+                      window.location.assign("/servidor");
+                   else{
+                        setEstadoError(error.response.status)
+                        setMensajeError(error.response.data.message)
+                        OpenAlertDialog() 
+                       }      
+              })
            
-           
-   
-       })
-       .then(response=>{
-        sessionStorage.setItem('accessToken', JSON.stringify(response.data.token));
-        sessionStorage.setItem('roles', JSON.stringify(response.data.rolesName));  
-       })
-       .catch(error=>{
-         console.log(error.response)
-         setEstadoError(error.response.status)
-         setMensajeError(error.response.data.message)
-         OpenAlertDialog()
-         
-          
-       })    
     }
 
 return (
@@ -261,13 +262,7 @@ return (
              variant="contained" 
              color="primary"
              className={classes.button}
-             onClick={
-                      async()=>{
-                               await peticionPost();
-                               window.location.assign("/navbar");
-                               }
-                     }
-             
+             onClick={async()=>await peticionPost()}
              >  
              Sign Up            
              </Button>

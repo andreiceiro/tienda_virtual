@@ -124,109 +124,113 @@ const NewUser=()=> {
     console.log(usuarioSeleccionado)
   }
 
-  const peticionGet= async()=>{
-    await axios({
-      method: "get",
-      baseURL: urlApi,
-      headers:{
-        "Content-Type":"application/json",
-        "x-access-token": accessToken
-      }
-    })
-    .then(response=>{
-      setData(response.data);
-    })
-    .catch(error=>{
-      console.log(error);
-    })
-  }
+const peticionGet= async()=>{
 
-  const peticionPost=async()=>{
-     await axios({
-        method: "post",
-        url:urlApi,
-        headers:{
-        "Content-Type":"application/json",
-        "x-access-token": accessToken
-        },
-        data:{
-          username: usuarioSeleccionado.username,
-          email: usuarioSeleccionado.email,
-          password: usuarioSeleccionado.password,
-          roles: roleName
-        }
+         await axios({
+               method: "get",
+               baseURL: urlApi,
+               headers:{
+               "Content-Type":"application/json",
+               "x-access-token": accessToken
+               }
+             })
+             .then(response=>{
+                  setData(response.data);
+              })
+             .catch(error=>{
+                   window.location.assign("/servidor") 
+              })
+
+}
+
+const peticionPost=async()=>{
+
+          await axios({
+                method: "post",
+                url:urlApi,
+                headers:{
+                "Content-Type":"application/json",
+                "x-access-token": accessToken
+                },
+                data:{
+                     username: usuarioSeleccionado.username,
+                     email: usuarioSeleccionado.email,
+                     password: usuarioSeleccionado.password,
+                     roles: roleName
+                     }
+             })
+             .then(response=>{
+                   console.log(response.data);
+                   setData(data.concat(response.data[response.data.length-1]));
+                   AbrirCerrarModalInsert();
+                  })
+             .catch(error=>{
+                    AbrirCerrarModalInsert();
+                    window.location.assign("/servidor");
+                  })
+
+}
+
+const peticionPut= async()=>{
+     
+          await axios({
+                method: "put",
+                url:urlApi+"/"+usuarioSeleccionado._id,
+                headers:{
+                "Content-Type":"application/json",
+                "x-access-token": accessToken
+                },
+                data:{
+                      username: usuarioSeleccionado.username,
+                      email: usuarioSeleccionado.email,
+                      password: usuarioSeleccionado.password,
+                      roles: roleName
+                     }
+               })
+               .then(response=>{
+                     console.log(response.data);
+                     let dataAct=data;
+                     dataAct.map(usuario=>{
+                                          if(usuario._id===usuarioSeleccionado._id)
+                                            {
+                                            usuario.username=usuarioSeleccionado.username;
+                                            usuario.email=usuarioSeleccionado.email;
+                                            usuario.password=usuarioSeleccionado.password;
+                                            usuario.roles=roleName;
+                                            }
+                                 });
+                     setData(dataAct);
+                     AbrirCerrarModalEditar();
+                   })
+                .catch(error=>{
+                      AbrirCerrarModalEditar();
+                      window.location.assign("/servidor");
+                     })
+     
+}
+
+const peticionDelete= async()=>{
+    
+          await axios({
+                method: "delete",
+                url:urlApi+"/"+usuarioSeleccionado._id,
+                headers:{
+                "Content-Type":"application/json",
+                "x-access-token": accessToken
+                },
+             })
+             .then(response=>{
+                   console.log(response.data);
         
-        
+              setData(data.filter(usuario=>usuario._id!==usuarioSeleccionado._id));
+              AbrirCerrarModalEliminar();
+              })
+             .catch(error=>{
+                    AbrirCerrarModalEliminar();
+                    window.location.assign("/servidor");
+                  })
 
-    })
-    .then(response=>{
-      console.log(response.data);
-      setData(data.concat(response.data[response.data.length-1]));
-      AbrirCerrarModalInsert();
-    })
-    .catch(error=>{
-      console.log(error);
-    })    
-  }
-
-  const peticionPut= async()=>{
-
-    await axios({
-      method: "put",
-        url:urlApi+"/"+usuarioSeleccionado._id,
-        headers:{
-        "Content-Type":"application/json",
-        "x-access-token": accessToken
-        },
-        data:{
-          username: usuarioSeleccionado.username,
-          email: usuarioSeleccionado.email,
-          password: usuarioSeleccionado.password,
-          roles: roleName
-        }
-    })
-    .then(response=>{
-      console.log(response.data);
-      let dataAct=data;
-      dataAct.map(usuario=>{
-        if(usuario._id===usuarioSeleccionado._id)
-          {
-            usuario.username=usuarioSeleccionado.username;
-            usuario.email=usuarioSeleccionado.email;
-            usuario.password=usuarioSeleccionado.password;
-            usuario.roles=roleName;
-          }
-      });
-      setData(dataAct);
-      AbrirCerrarModalEditar();
-    })
-    .catch(error=>{
-      console.log(error);
-    })
-
-  }
-
-  const peticionDelete= async()=>{
-
-    await axios({
-      method: "delete",
-        url:urlApi+"/"+usuarioSeleccionado._id,
-        headers:{
-        "Content-Type":"application/json",
-        "x-access-token": accessToken
-        },
-    })
-    .then(response=>{
-      console.log(response.data);
-      
-      setData(data.filter(usuario=>usuario._id!==usuarioSeleccionado._id));
-      AbrirCerrarModalEliminar();
-    })
-    .catch(error=>{
-      console.log(error);
-    })
-
-  }
+}
 
 
   const AbrirCerrarModalInsert=()=>{
@@ -249,7 +253,7 @@ const NewUser=()=> {
   }
 
   useEffect(()=>{
-    peticionGet();
+    peticionGet();    
   },[])
 
   //---------------------------------------------
@@ -329,7 +333,10 @@ const NewUser=()=> {
        <br/>
        <br/>
        <div align="right">
-         <Button variant="text" color="primary" onClick={()=>peticionPost()}>
+         <Button variant="text" 
+          color="primary" 
+          onClick={async()=>await peticionPost()}
+         >
            Insertar
          </Button>
          <Button variant="text" color="default" onClick={()=>AbrirCerrarModalInsert()}>
@@ -390,7 +397,10 @@ const NewUser=()=> {
        <br/>
        <br/>
        <div align="right">
-         <Button variant="text" color="primary" onClick={()=>{peticionPut()}}>
+         <Button variant="text" 
+          color="primary" 
+          onClick={async()=>await peticionPut()}
+         >
            Editar
          </Button>
          <Button variant="text" color="default" onClick={()=>AbrirCerrarModalEditar()}>
@@ -405,7 +415,10 @@ const NewUser=()=> {
        <p>Está seguro que deseas eliminar al usuario <b>
          {usuarioSeleccionado && usuarioSeleccionado.username}</b>?</p>
        <div align="right">
-         <Button variant="text" color="secondary" onClick={()=>{peticionDelete()}}>
+         <Button variant="text" 
+          color="secondary" 
+          onClick={async()=>await peticionDelete()}
+         >
            Si
          </Button>
          <Button variant="text" color="default" onClick={()=>AbrirCerrarModalEliminar()}>

@@ -70,7 +70,7 @@ const tableIcons = {
   ]
 
 const urlApi="http://localhost:3001/api/products";
-//const urlApi=process.env.REACT_APP_URL_API+"/products";
+
 const useStyles= makeStyles((theme)=>({
   modal:{
         position:'absolute',
@@ -108,15 +108,6 @@ axios.interceptors.request.use(
   }
 ); 
 
-/* const authAxios= axios.create({
-  baseURL:urlApi,
-  headers:{
-    Authorization: `Bearer${accessToken}`,
-    'Content-Type':'application/json',
-    'x-access-token': `${accessToken}`
-  },
-}); */
-
 const NewProduct = () => {
 
   const classes= useStyles();
@@ -146,111 +137,113 @@ const NewProduct = () => {
   }
 
   const peticionGet= async()=>{
-    await axios({
-      method: "get",
-      baseURL: urlApi,
-      headers:{
-        "Content-Type":"application/json",
-        "x-access-token": accessToken
-      }
-    })
-    .then(response=>{
-      setData(response.data);
-      console.log(accessToken)
-      
-    })
-    .catch(error=>{
-      console.log(error);
-    })
+            await axios({
+                  method: "get",
+                  baseURL: urlApi,
+                  headers:{
+                  "Content-Type":"application/json",
+                  "x-access-token": accessToken
+                  }
+               })
+              .then(response=>{
+               setData(response.data);
+               console.log(accessToken)
+              })
+              .catch(error=>{
+               window.location.assign("/servidor")
+              })
+    
   }
 
-  const peticionPost=async()=>{
-     await axios({
-        method: "post",
-        url:urlApi,
-        headers:{
-        "Content-Type":"application/json",
-        "x-access-token": accessToken
-        },
-        data:{
-          name: productoSeleccionado.name,
-          category: productoSeleccionado.category,
-          price: productoSeleccionado.price,
-          imgURL: productoSeleccionado.imgURL
-        }
+const peticionPost=async()=>{
+    
+         await axios({
+               method: "post",
+               url:urlApi,
+               headers:{
+               "Content-Type":"application/json",
+               "x-access-token": accessToken
+               },
+               data:{
+               name: productoSeleccionado.name,
+               category: productoSeleccionado.category,
+               price: productoSeleccionado.price,
+               imgURL: productoSeleccionado.imgURL
+               }
+             })
+            .then(response=>{
+             console.log(response.data);
+             setData(data.concat(response.data));
+             AbrirCerrarModalInsert();
+             })
+            .catch(error=>{ 
+             AbrirCerrarModalInsert()
+             window.location.assign("/servidor")
+             }) 
+
+ }
+
+const peticionPut= async()=>{
+  
+         await axios({
+               method: "put",
+               url:urlApi+"/"+productoSeleccionado._id,
+               headers:{
+               "Content-Type":"application/json",
+               "x-access-token": accessToken
+               },
+               data:{
+               name: productoSeleccionado.name,
+               category: productoSeleccionado.category,
+               price: productoSeleccionado.price,
+               imgURL: productoSeleccionado.imgURL
+               }
+            })
+            .then(response=>{
+             console.log(response.data);
+             let dataAct=data;
+             dataAct.map(producto=>{
+                  if(producto._id===productoSeleccionado._id)
+                    {
+                    producto.name= productoSeleccionado.name;
+                    producto.category= productoSeleccionado.category;
+                    producto.price= productoSeleccionado.price;
+                    producto.imgURL= productoSeleccionado.imgURL;
+                    producto.user= productoSeleccionado.user;
+                    }
+                });
+            setData(dataAct);
+            AbrirCerrarModalEditar();
+             })
+            .catch(error=>{
+             AbrirCerrarModalEditar()
+             window.location.assign("/servidor")
+            })
+
+  }
+
+const peticionDelete= async()=>{
+    
+         await axios({
+               method: "delete",
+               url:urlApi+"/"+productoSeleccionado._id,
+               headers:{
+               "Content-Type":"application/json",
+               "x-access-token": accessToken
+               },
+            })
+            .then(response=>{
+             console.log(response.data);
         
-        
+             setData(data.filter(producto=>producto._id!==productoSeleccionado._id));
+             AbrirCerrarModalEliminar();
+            })
+            .catch(error=>{
+             AbrirCerrarModalEliminar()
+             window.location.assign("/servidor")
+             })
 
-    })
-    .then(response=>{
-      console.log(response.data);
-      setData(data.concat(response.data));
-      AbrirCerrarModalInsert();
-    })
-    .catch(error=>{
-      console.log(error);
-    })    
-  }
-
-  const peticionPut= async()=>{
-
-    await axios({
-      method: "put",
-        url:urlApi+"/"+productoSeleccionado._id,
-        headers:{
-        "Content-Type":"application/json",
-        "x-access-token": accessToken
-        },
-        data:{
-          name: productoSeleccionado.name,
-          category: productoSeleccionado.category,
-          price: productoSeleccionado.price,
-          imgURL: productoSeleccionado.imgURL
-        }
-    })
-    .then(response=>{
-      console.log(response.data);
-      let dataAct=data;
-      dataAct.map(producto=>{
-        if(producto._id===productoSeleccionado._id)
-          {
-          producto.name= productoSeleccionado.name;
-          producto.category= productoSeleccionado.category;
-          producto.price= productoSeleccionado.price;
-          producto.imgURL= productoSeleccionado.imgURL;
-          producto.user= productoSeleccionado.user;
-          }
-      });
-      setData(dataAct);
-      AbrirCerrarModalEditar();
-    })
-    .catch(error=>{
-      console.log(error);
-    })
-
-  }
-
-  const peticionDelete= async()=>{
-
-    await axios({
-      method: "delete",
-        url:urlApi+"/"+productoSeleccionado._id,
-        headers:{
-        "Content-Type":"application/json",
-        "x-access-token": accessToken
-        },
-    })
-    .then(response=>{
-      console.log(response.data);
-      
-      setData(data.filter(producto=>producto._id!==productoSeleccionado._id));
-      AbrirCerrarModalEliminar();
-    })
-    .catch(error=>{
-      console.log(error);
-    })
-
-  }
+}
 
 
   const AbrirCerrarModalInsert=()=>{
@@ -322,7 +315,10 @@ const NewProduct = () => {
        <br/>
        <br/>
        <div align="right">
-         <Button variant="text" color="primary" onClick={()=>peticionPost()}>
+         <Button variant="text" 
+         color="primary" 
+         onClick={async()=>await peticionPost()}
+         >
            Insertar
          </Button>
          <Button variant="text" color="default" onClick={()=>AbrirCerrarModalInsert()}>
@@ -363,12 +359,16 @@ const NewProduct = () => {
          className={classes.inputMaterial}
          label="Imagen"
          name="imgURL"
-         onChange={handleChange}   
+         onChange={handleChange} 
+         value={productoSeleccionado&&productoSeleccionado.imgURL}  
        />
        <br/>
        <br/>
        <div align="right">
-         <Button variant="text" color="primary" onClick={()=>{peticionPut()}}>
+         <Button variant="text" 
+          color="primary" 
+          onClick={async()=>await peticionPut()}
+         >
            Editar
          </Button>
          <Button variant="text" color="default" onClick={()=>AbrirCerrarModalEditar()}>
@@ -383,7 +383,10 @@ const NewProduct = () => {
        <p>Está seguro que deseas eliminar al producto <b>
          {productoSeleccionado && productoSeleccionado.name}</b>?</p>
        <div align="right">
-         <Button variant="text" color="secondary" onClick={()=>{peticionDelete()}}>
+         <Button variant="text" 
+          color="secondary" 
+          onClick={async()=>await peticionDelete()}
+         >
            Si
          </Button>
          <Button variant="text" color="default" onClick={()=>AbrirCerrarModalEliminar()}>

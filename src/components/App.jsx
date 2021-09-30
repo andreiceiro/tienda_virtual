@@ -5,6 +5,8 @@ import Registro from "./Registro";
 import newProduct from "./newProduct"
 import newUser from "./newUser"
 import NavBar from "./NavBar";
+import NotFound from "./errors/NotFound";
+import InternalServerError from "./errors/InternalServerError";
 
 
 function App() {
@@ -16,6 +18,8 @@ function App() {
          <Route exact path="/product" component={newProduct}/>
          <Route exact path="/user" component={newUser}/>
          <Route exact path="/navbar" component={NavBar}/>
+         <Route exact path="/servidor" component={InternalServerError}/>
+         <Route component={NotFound}/>
       </Switch>    
     </BrowserRouter>
   )
